@@ -1,5 +1,7 @@
+UNAME_S := $(shell uname -s)	# Linux, Darwin
+
 ASM := nasm
-ASMFLAGS = -f elf64 -g -F dwarf
+ASMFLAGS = -i ./src/constants/ -f elf64 -g -F dwarf
 LD := ld
 LDFLAGS :=
 
@@ -7,13 +9,13 @@ BUILD_DIR := bin/build
 OUTPUT_DIR := bin
 SOURCE_DIR := src
 
-SRC := $(SOURCE_DIR)/main.asm $(SOURCE_DIR)/connection/socket.asm
+SRC := $(SOURCE_DIR)/main.asm $(SOURCE_DIR)/connection/socket_ipv6.asm
 OBJS = $(SRC:$(SOURCE_DIR)/%.asm=$(BUILD_DIR)/%.o)
 BIN := $(OUTPUT_DIR)/chat-server
 
 PORT := 1234
 
-.PHONY: run
+.PHONY: run debug
 
 $(BIN): $(OBJS)
 	@echo "linking"
@@ -25,8 +27,11 @@ $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.asm
 	mkdir -p $(@D)
 	$(ASM) $(ASMFLAGS) -o $@ $<
 
+build: $(BIN)
+
 run: $(BIN)
 	./$(BIN)
 
 clean:
-	$(RM) -r $(BUILD_DIR)
+	$(RM) -r $(OUTPUT_DIR)/**
+

@@ -1,3 +1,9 @@
 # compiled files
 bin/
 *.o
+
+# Editor Files
+.ide
+.vscode
+
+todo.md
