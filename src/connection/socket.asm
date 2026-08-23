@@ -1,9 +1,9 @@
-; connection/socket.asm
+; src/connection/socket.asm
 
-SYS_SOCKET equ 0xC6
-SYS_CONNECT equ 0x
-SYS_BIND equ 0x
-SYS_LISTEN equ 0xC9
+SYS_SOCKET equ 0x167
+SYS_BIND equ 0x169
+SYS_CONNECT equ 0x16A
+SYS_LISTEN equ 0x16B
 
 ; sys/socket.h
 AF_UNIX equ 0x1
@@ -22,11 +22,12 @@ ENFILE equ 0x18 ; errno-base.h
 ENOBUFS equ 0x69 ; errno.h
 EPROTONOSUPPORT equ 0x5D; errno.h
 
-; section .data
-
 section .text
 	global _create_socket
+	global _socket_connect
+	global _socket_bind
 	global _socket_listen
+	global _socket_accept
 
 ;; @brief creates a unix/local socket
 ;; @clobbers rdi, rsi, rdx
@@ -35,7 +36,7 @@ _create_socket:
 	; https://man7.org/linux/man-pages/man7/unix.7.html
 
 	; call the socket function
-	; socket(AF_UNIX, SOCK_DGRAM, 0)
+	; socket(AF_UNIX, SOCK_STREAM, 0)
 	mov rax, SYS_SOCKET
 	mov rdi, AF_UNIX
 	mov rsi, SOCK_STREAM
@@ -49,9 +50,18 @@ _create_socket:
 ;; @brief 
 ;; @param rdi sockfd
 _socket_connect:
+	; https://manpages.opensuse.org/Tumbleweed/man-pages/sa_family_t.3type.en.html#sa_family_t
+	; struct sockaddr_un {
+	; 	 sa_family_t sun_family;               /* AF_UNIX */
+	; 	 char        sun_path[108];            /* Pathname */
+	; };
+	
 
 	mov rax, SYS_CONNECT
-	mov rsi, addr
+	; rdi sockfd
+	; mov rsi, addr
+	mov rdx, 16
+	syscall
 
 
 	ret
@@ -72,6 +82,6 @@ _socket_listen:
 
 
 
-;; @brief 
-_accept_socket:
+;; @brief accept incoming
+_socket_accept:
 	ret
