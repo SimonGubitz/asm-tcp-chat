@@ -9,154 +9,155 @@ extern _socket_listen
 extern _socket_accept
 
 section .bss
-	socket_addr resb 16			; 16 bytes
+  socket_addr resb 16      ; 16 bytes
 
-	errno_str resd 1
-	errno_str_len resb 1
+  errno_str resd 1
+  errno_str_len resb 1
 
 section .data
-	gen_errstr db "There has been an error. ", 0x0
-	gen_errstrlen equ $ - gen_errstr
+  gen_errstr db "There has been an error. ", 0x0
+  gen_errstrlen equ $ - gen_errstr
 
-	gen_errstr_suffix db "Error Code: ", 0x0
-	gen_errstr_suffixlen equ $ - gen_errstr_suffix
+  gen_errstr_suffix db "Error Code: ", 0x0
+  gen_errstr_suffixlen equ $ - gen_errstr_suffix
 
-	create_errstr db "Failed to create socket.", 0xa
-	create_errstrlen equ $ - create_errstr
+  create_errstr db "Failed to create socket.", 0xA, 0x0
+  create_errstrlen equ $ - create_errstr
 
-	conn_errstr db "Failed to connect to socket.", 0xa
-	conn_errstrlen equ $ - conn_errstr
+  conn_errstr db "Failed to connect to socket.", 0xA, 0x0
+  conn_errstrlen equ $ - conn_errstr
 
-	bind_errstr db "Failed to bind to socket.", 0xa
-	bind_errstrlen equ $ - bind_errstr
+  bind_errstr db "Failed to bind to socket.", 0xA, 0x0
+  bind_errstrlen equ $ - bind_errstr
 
-	listen_errstr db "Failed to listen with socket.", 0xA
-	listen_errstrlen equ $ - listen_errstr
+  listen_errstr db "Failed to listen with socket.", 0xA
+  listen_errstrlen equ $ - listen_errstr
 
-	accept_errstr db "Failed to accept with socket.", 0xA
-	accept_errstrlen equ $ - accept_errstr
+  accept_errstr db "Failed to accept with socket.", 0xA, 0x0
+  accept_errstrlen equ $ - accept_errstr
 
-	port dw %env("PORT", 1234)
+  ; port dw %env("PORT", 1234)
 
 
 section .text
-	global _start
+  global _start
 
 _start:
-	; stack frame
-	; push ebp
-	; push mov ebp, esp ; <- error in this line
+  ; stack frame
+  ; push ebp
+  ; push mov ebp, esp ; <- error in this line
 
-	; reserve space: sizeof(sockaddr_un)
-	; sub esp, 
+  ; reserve space: sizeof(sockaddr_un)
+  ; sub esp, 
 
-	call _create_socket	; sockfd is in rax after
-	cmp rax, -1					; if sockfd == -1
-	je .err_create_socket
+  call _create_socket  ; sockfd is in rax after
+  cmp rax, -1          ; if sockfd == -1
+  je .err_create_socket
 
-	mov rdi, rax						; rdi <- sockfd
-	mov rsi, socket_addr
-	mov rdx, port
-	call _socket_bind
-	test rax, rax
-	jnz .err_socket_bind
+  mov rdi, rax            ; rdi <- sockfd
+  mov rsi, socket_addr
+  ; mov rdx, port
+  mov rdx, 1234
+  call _socket_bind
+  test rax, rax
+  jnz .err_socket_bind
 
-	call _socket_listen
-	test rax, rax
-	jnz .err_socket_listen
+  call _socket_listen
+  test rax, rax
+  jnz .err_socket_listen
 
-	; TODO: ?
+  ; TODO: ?
 
-	call _socket_accept
-	test rax, rax
-	jnz .err_socket_accept
+  call _socket_accept
+  test rax, rax
+  jnz .err_socket_accept
 
-	; prepare the params
-	call _socket_listen
-	test rax, rax
-	jnz _handle_error
+  ; prepare the params
+  call _socket_listen
+  test rax, rax
+  jnz _handle_error
 
-	jmp _exit_success
+  jmp _exit_success
 
 .err_create_socket:
-	mov rsi, create_errstr
-	mov rdx, create_errstrlen
-	mov r10, rax
-	jmp _handle_error
+  mov rsi, create_errstr
+  mov rdx, create_errstrlen
+  mov r10, rax
+  jmp _handle_error
 
 .err_socket_connect:
-	mov rsi, conn_errstr
-	mov rdx, conn_errstrlen
-	mov r10, rax
-	jmp _handle_error
+  mov rsi, conn_errstr
+  mov rdx, conn_errstrlen
+  mov r10, rax
+  jmp _handle_error
 
 .err_socket_bind:
-	mov rsi, bind_errstr
-	mov rdx, bind_errstrlen
-	mov r10, rax
-	jmp _handle_error
+  mov rsi, bind_errstr
+  mov rdx, bind_errstrlen
+  mov r10, rax
+  jmp _handle_error
 
 .err_socket_listen:
-	mov rsi, listen_errstr
-	mov rdx, listen_errstrlen
-	mov r10, rax
-	jmp _handle_error
+  mov rsi, listen_errstr
+  mov rdx, listen_errstrlen
+  mov r10, rax
+  jmp _handle_error
 
 .err_socket_accept:
-	mov rsi, accept_errstr
-	mov rdx, accept_errstrlen
-	mov r10, rax
-	jmp _handle_error
+  mov rsi, accept_errstr
+  mov rdx, accept_errstrlen
+  mov r10, rax
+  jmp _handle_error
 
-	ret
+  ret
 
 ;; @brief prints the error message and exits the program
-;; @param rsi string	- error message string
-;; @param r10    int	- error code
+;; @param rsi string  - error message string
+;; @param r10    int  - error code
 _handle_error:
 
-	push rdx
-	push rsi
+  push rdx
+  push rsi
 
-	mov rax, SYS_WRITE
-	mov rdi, STDERR
-	mov rsi, gen_errstr
-	mov rdx, gen_errstrlen
-	syscall ; stdout: "There has been an Error."
+  mov rax, SYS_WRITE
+  mov rdi, STDERR
+  mov rsi, gen_errstr
+  mov rdx, gen_errstrlen
+  syscall ; stdout: "There has been an Error."
 
-	mov rax, SYS_WRITE
-	mov rdi, STDERR
-	pop rsi
-	pop rdx
-	syscall ; std: "Failed to ..."
+  mov rax, SYS_WRITE
+  mov rdi, STDERR
+  pop rsi
+  pop rdx
+  syscall ; std: "Failed to ..."
 
-	mov rax, SYS_WRITE
-	mov rdi, STDERR
-	mov rsi, gen_errstr_suffix
-	mov rdx, gen_errstr_suffixlen
-	syscall ; stdout: "Error Code: "
+  mov rax, SYS_WRITE
+  mov rdi, STDERR
+  mov rsi, gen_errstr_suffix
+  mov rdx, gen_errstr_suffixlen
+  syscall ; stdout: "Error Code: "
 
-	mov rax, r10
+  mov rax, r10
 
 ;; @param rax
 .atoi:
-	
+  
 
-	jmp _exit_failure
+  jmp _exit_failure
 
 ;; @brief exits the program with error code 0
 _exit_success:
-	xor rdi, rdi
-	jmp _exit
+  xor rdi, rdi
+  jmp _exit
 
 ;; @brief exits the program with error code 1
 _exit_failure:
-	mov rdi, 1
-	syscall
+  mov rdi, 1
+  syscall
 
 ;; @brief exits the program with the supplied error code
 ;; @param rdi error code
 _exit:
-	mov rax, SYS_EXIT
-	syscall
+  mov rax, SYS_EXIT
+  syscall
 
