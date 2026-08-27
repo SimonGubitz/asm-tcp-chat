@@ -5,6 +5,7 @@ MAX_BACKLOG equ 0x02
 IPv6_ADDRLEN equ 0x1C
 
 section .text
+	global _fill_sockaddr_in6 ; for C testing access
   global _create_socket
   global _socket_connect
   global _socket_bind
@@ -18,11 +19,11 @@ _create_socket:
   ; https://man7.org/linux/man-pages/man7/unix.7.html
 
   ; call the socket function
-  ; socket(AF_UNIX, SOCK_STREAM, 0)
+  ; socket(AF_INET6, SOCK_STREAM, 0);
   mov rax, SYS_SOCKET
-  mov rdi, AF_UNIX
+  mov rdi, AF_INET6
   mov rsi, SOCK_STREAM
-  mov rdx, 0
+  mov rdx, 0x0
   syscall
 
   ret
@@ -89,6 +90,8 @@ _socket_close:
 ;; @param rdi   * - socket address
 ;; @param rsi int - port
 _fill_sockaddr_in6:
+	xor rcx, rcx
+
   ; source: /usr/include/linux/in6.h
   ; struct sockaddr_in6 {
   ;   unsigned short int  sin6_family;    /*  2 byte */    /* AF_INET6 */
@@ -103,15 +106,15 @@ _fill_sockaddr_in6:
   ;   __u8    u6_addr8[16];
   ; };
 
-  lea r10, [rsi+rcx]
+  lea r10, [rdi+rcx]
   mov word [r10], AF_INET6    ; sin6_family
   add rcx, 0x2
 
-  lea r10, [rsi+rcx]
-  mov word [r10], dx          ; sin6_port
+  lea r10, [rdi+rcx]
+  mov word [r10], si          ; sin6_port
   add rcx, 0x2
 
-  lea r10, [rsi+rcx]
+  lea r10, [rdi+rcx]
   mov dword [r10], 0x0        ; sin6_flowinfo -> default 0
   add rcx, 0x4
 
@@ -126,8 +129,8 @@ _fill_sockaddr_in6:
   test rcx, rcx             ; if ( rcx == 0 ) { break; }
   jz .done_fill_addr
 
-  lea r10w, [rsi+r9]
-  mov word [r10d], 0x0      ; sin6_addr.u6_addr[rcx] = 0
+  lea r10, [rdi+r9]
+  mov word [r10], 0x0      ; sin6_addr.u6_addr[rcx] = 0
   dec rcx                   ; rcx--    <- move the loop along
   inc r9                    ; r9++    <- move the memory addr along
 
@@ -135,8 +138,10 @@ _fill_sockaddr_in6:
 .done_fill_addr:
 
   pop rcx
-  add rcx, 0x04
+  add rcx, 0x10
 
-  lea r10, [rsi+rcx]
-  mov qword [r10], 0x0    ; sin6_scope_id
+  lea r10, [rdi+rcx]
+  mov dword [r10], 0x0    ; sin6_scope_id
+
+	ret
 

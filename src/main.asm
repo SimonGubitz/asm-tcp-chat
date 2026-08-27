@@ -51,8 +51,8 @@ _start:
   ; sub esp, 
 
   call _create_socket  ; sockfd is in rax after
-  cmp rax, -1          ; if sockfd == -1
-  je .err_create_socket
+  cmp rax, 0          ; if sockfd == -1
+  jl .err_create_socket
 
   mov rdi, rax            ; rdi <- sockfd
   mov rsi, socket_addr

@@ -11,11 +11,10 @@ STDOUT equ 0x1
 STDERR equ 0x2
 
 ; sys/socket.h
-AF_UNSPEC	equ 0x00 ; both IPv4 and IPv6
 AF_INET		equ 0x02
-AF_INET6	equ 0x10
-AF_UNIX		equ 0x01
+AF_INET6	equ 0x0A
 
 SOCK_STREAM			equ 0x1
 SOCK_DGRAM			equ 0x2
 SOCK_SEQPACKET	equ 0x5
+
