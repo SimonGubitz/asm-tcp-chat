@@ -1,7 +1,6 @@
 ; src/connection/socket.asm
 %include "linux64.inc"
 
-MAX_BACKLOG equ 0x02
 IPv6_ADDRLEN equ 0x1C
 
 section .text
@@ -29,10 +28,11 @@ _create_socket:
   ret
 
 
+
 ;; @brief wraps the bind syscall
-;; @param rdi int - sockfd
-;; @param rsi   * - addr
-;; @param rdx int - port
+;; @param rdi        int - sockfd
+;; @param rsi sockaddr * - socket address
+;; @param rdx        int - port
 ;; @clobbers rcx, r9, r10
 ;; @returns rax int - negative errno
 _socket_bind:
@@ -58,12 +58,12 @@ _socket_bind:
 
 
 ;; @brief mark the socket as passive / as a listening socket
-;; @param rdi sockfd
-;; @return
+;; @param rdi int - sockfd
+;; @return rax int - 0 on success, negative errno on failure
 _socket_listen:
   mov rax, SYS_LISTEN
   ; rdi is supplied
-  mov rsi, MAX_BACKLOG
+  mov rsi, 0x02
   syscall
 
   ret
@@ -71,24 +71,35 @@ _socket_listen:
 
 
 ;; @brief accept incoming connections
-;; @returns rax int - new socket file descriptor
+;; @param rdi        int - sockfd
+;; @param rsi sockaddr * - socket address
+;; @returns rax int - new connected sockfd
 _socket_accept:
+
+  ; int accept(int sockfd, struct sockaddr *_Nullable restrict addr, socklen_t *_Nullable restrict addrlen);
+  mov rax, SYS_ACCEPT
+  mov rdx, IPv6_ADDRLEN
+  syscall
+
   ret
 
 
 
 ;; @brief closes the socket from the kernel
 ;; @param rdi int - sockfd
+;; @return rax int - 0 on success, negative errno on failure
 _socket_close:
-  
-  mov rdi, rax
+
+  mov rax, SYS_CLOSE
+  syscall
 
   ret
 
 
+
 ;; @brief fills the sockaddr_in6 struct with
-;; @param rdi   * - socket address
-;; @param rsi int - port
+;; @param rdi sockaddr * - socket address
+;; @param rsi        int - port
 _fill_sockaddr_in6:
 	xor rcx, rcx
 

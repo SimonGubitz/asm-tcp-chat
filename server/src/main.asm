@@ -6,7 +6,9 @@ extern _create_socket
 extern _socket_connect
 extern _socket_bind
 extern _socket_listen
-extern _socket_accept
+
+; ./runtime/echo.asm
+extern _echo_runtime
 
 section .bss
   socket_addr resb 16      ; 16 bytes
@@ -66,16 +68,12 @@ _start:
   test rax, rax
   jnz .err_socket_listen
 
-  ; TODO: ?
+  ; TODO: enter the runtime here
+  push rdi        ; save the sockfd
+  call _echo_message_runtime
 
-  call _socket_accept
-  test rax, rax
-  jnz .err_socket_accept
-
-  ; prepare the params
-  call _socket_listen
-  test rax, rax
-  jnz _handle_error
+  pop rdi
+  call _socket_close
 
   jmp _exit_success
 
@@ -131,17 +129,7 @@ _handle_error:
   pop rdx
   syscall ; std: "Failed to ..."
 
-  mov rax, SYS_WRITE
-  mov rdi, STDERR
-  mov rsi, gen_errstr_suffix
-  mov rdx, gen_errstr_suffixlen
-  syscall ; stdout: "Error Code: "
-
   mov rax, r10
-
-;; @param rax
-.atoi:
-  
 
   jmp _exit_failure
 
@@ -153,7 +141,7 @@ _exit_success:
 ;; @brief exits the program with error code 1
 _exit_failure:
   mov rdi, 1
-  syscall
+  jmp _exit
 
 ;; @brief exits the program with the supplied error code
 ;; @param rdi error code
