@@ -6,6 +6,7 @@ extern _create_socket
 extern _socket_connect
 extern _socket_bind
 extern _socket_listen
+extern _socket_close
 
 ; ./runtime/echo.asm
 extern _echo_runtime
@@ -70,7 +71,7 @@ _start:
 
   ; TODO: enter the runtime here
   push rdi        ; save the sockfd
-  call _echo_message_runtime
+  call _echo_runtime
 
   pop rdi
   call _socket_close

@@ -9,7 +9,7 @@ BUILD_DIR := bin/build
 OUTPUT_DIR := bin
 SOURCE_DIR := src
 
-SRC := $(SOURCE_DIR)/main.asm $(SOURCE_DIR)/connection/socket_ipv6.asm
+SRC := $(SOURCE_DIR)/main.asm $(SOURCE_DIR)/connection/socket_ipv6.asm $(SOURCE_DIR)/runtime/echo.asm
 OBJS = $(SRC:$(SOURCE_DIR)/%.asm=$(BUILD_DIR)/%.o)
 BIN := $(OUTPUT_DIR)/chat-server
 

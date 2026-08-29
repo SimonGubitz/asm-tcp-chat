@@ -7,6 +7,7 @@ SYS_BIND    equ 0x31
 SYS_CONNECT equ 0x2A
 SYS_LISTEN  equ 0x32
 SYS_CLOSE   equ 0x03
+SYS_ACCEPT  equ 0x2B
 
 STDOUT equ 0x1
 STDERR equ 0x2

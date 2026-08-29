@@ -10,6 +10,7 @@ section .text
   global _socket_bind
   global _socket_listen
   global _socket_accept
+  global _socket_close
 
 ;; @brief creates a unix/local socket
 ;; @clobbers rdi, rsi, rdx
