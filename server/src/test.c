@@ -6,6 +6,7 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <sys/epoll.h>
 
 // asm functions
 extern int _create_socket();
@@ -115,6 +116,28 @@ void fuzzy_test_chat() {
   // TODO: implement this
 }
 
+void print_epoll_constants() {
+
+  printf("op:\n");
+  printf("EPOLL_CTL_ADD equ 0x%0*X\n",    2, EPOLL_CTL_ADD);
+  printf("EPOLL_CTL_MOD equ 0x%0*X\n",    2, EPOLL_CTL_MOD);
+  printf("EPOLL_CTL_DEL equ 0x%0*X\n\n",  2, EPOLL_CTL_DEL);
+
+  printf("events:\n");
+  printf("EPOLLIN equ 0x%0*X\n",    2, EPOLLIN);
+  printf("EPOLLOUT equ 0x%0*X\n",   2, EPOLLOUT);
+  printf("EPOLLRDHUP equ 0x%0*X\n", 2, EPOLLRDHUP);
+  printf("EPOLLPRI equ 0x%0*X\n",   2, EPOLLPRI);
+  printf("EPOLLERR equ 0x%0*X\n",   2, EPOLLERR);
+  printf("EPOLLHUP equ 0x%0*X\n\n", 2, EPOLLHUP);
+
+  printf("input flags:\n");
+  printf("EPOLLET equ 0x%0*X\n",        2, EPOLLET);
+  printf("EPOLLONESHOT equ 0x%0*X\n",   2, EPOLLONESHOT);
+  printf("EPOLLWAKEUP equ 0x%0*X\n",    2, EPOLLWAKEUP);
+  printf("EPOLLEXCLUSIVE equ 0x%0*X\n", 2, EPOLLEXCLUSIVE);
+}
+
 int main() {
 
   // print_constants();
@@ -128,9 +151,15 @@ int main() {
   // 	exit(1);
   // }
 
-  int sockfd = test_socket_create();
-  test_socket_bind(sockfd);
-  test_socket_close(sockfd);
+  // printf("testing socket\n");
+  // int sockfd = test_socket_create();
+  // test_socket_bind(sockfd);
+  // test_socket_close(sockfd);
+  // printf("done\n");
+
+  printf("SOCK_NONBLOCK equ 0x%0*X\n", 2, SOCK_NONBLOCK);
+
+  print_epoll_constants();
 
   return 0;
 }

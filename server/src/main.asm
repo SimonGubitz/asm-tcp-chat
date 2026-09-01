@@ -33,11 +33,14 @@ section .data
   bind_errstr db "Failed to bind to socket.", 0xA, 0x0
   bind_errstrlen equ $ - bind_errstr
 
-  listen_errstr db "Failed to listen with socket.", 0xA
+  listen_errstr db "Failed to listen on socket.", 0xA
   listen_errstrlen equ $ - listen_errstr
 
-  accept_errstr db "Failed to accept with socket.", 0xA, 0x0
+  accept_errstr db "Failed to accept incoming connection.", 0xA, 0x0
   accept_errstrlen equ $ - accept_errstr
+
+  runtime_errstr db "Unknown error during runtime.", 0xA, 0x0
+  runtime_errstrlen equ $ - runtime_errstr
 
   ; port dw %env("PORT", 1234)
 
@@ -81,38 +84,38 @@ _start:
 .err_create_socket:
   mov rsi, create_errstr
   mov rdx, create_errstrlen
-  mov r10, rax
   jmp _handle_error
 
 .err_socket_connect:
   mov rsi, conn_errstr
   mov rdx, conn_errstrlen
-  mov r10, rax
   jmp _handle_error
 
 .err_socket_bind:
   mov rsi, bind_errstr
   mov rdx, bind_errstrlen
-  mov r10, rax
   jmp _handle_error
 
 .err_socket_listen:
   mov rsi, listen_errstr
   mov rdx, listen_errstrlen
-  mov r10, rax
   jmp _handle_error
 
 .err_socket_accept:
   mov rsi, accept_errstr
   mov rdx, accept_errstrlen
-  mov r10, rax
   jmp _handle_error
+
+.err_runtime:
+  mov rsi, runtime_errstr
+  mov rdx, runtime_errstrlen
+  jmp _handle_error
+
 
   ret
 
 ;; @brief prints the error message and exits the program
 ;; @param rsi string  - error message string
-;; @param r10    int  - error code
 _handle_error:
 
   push rdx
@@ -129,8 +132,6 @@ _handle_error:
   pop rsi
   pop rdx
   syscall ; std: "Failed to ..."
-
-  mov rax, r10
 
   jmp _exit_failure
 
