@@ -48,15 +48,9 @@ section .text
   global _start
 
 _start:
-  ; stack frame
-  ; push ebp
-  ; push mov ebp, esp ; <- error in this line
 
-  ; reserve space: sizeof(sockaddr_un)
-  ; sub esp, 
-
-  call _create_socket  ; sockfd is in rax after
-  cmp rax, 0          ; if sockfd == -1
+  call _create_socket     ; sockfd is in rax after
+  cmp rax, 0              ; if sockfd == -1
   jl .err_create_socket
 
   mov rdi, rax            ; rdi <- sockfd

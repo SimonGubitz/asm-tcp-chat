@@ -62,6 +62,9 @@ _socket_bind:
 ;; @param rdi int - sockfd
 ;; @return rax int - 0 on success, negative errno on failure
 _socket_listen:
+
+  ; INFO:
+  ; int listen(int sockfd, int backlog);
   mov rax, SYS_LISTEN
   ; rdi is supplied
   mov rsi, 0x02
@@ -77,6 +80,7 @@ _socket_listen:
 ;; @returns rax int - new connected sockfd
 _socket_accept:
 
+  ; INFO:
   ; int accept(int sockfd, struct sockaddr *_Nullable restrict addr, socklen_t *_Nullable restrict addrlen);
   mov rax, SYS_ACCEPT
   mov rdx, IPv6_ADDRLEN
@@ -91,6 +95,8 @@ _socket_accept:
 ;; @return rax int - 0 on success, negative errno on failure
 _socket_close:
 
+  ; INFO:
+  ; int close(int fd);
   mov rax, SYS_CLOSE
   syscall
 
@@ -132,9 +138,6 @@ _fill_sockaddr_in6:
 
   push rcx
 
-  ; for (int i = 0; i < 16; i++) {
-  ;   u6_addr8[i] = 0;
-  ; }
   mov r9, rcx  ; r9 = rcx
   mov rcx, 0x10
 .fill_addr:
@@ -142,9 +145,9 @@ _fill_sockaddr_in6:
   jz .done_fill_addr
 
   lea r10, [rdi+r9]
-  mov word [r10], 0x0      ; sin6_addr.u6_addr[rcx] = 0
+  mov word [r10], 0x0       ; sin6_addr.u6_addr[rcx] = 0
   dec rcx                   ; rcx--    <- move the loop along
-  inc r9                    ; r9++    <- move the memory addr along
+  inc r9                    ; r9++     <- move the memory addr along
 
   jmp .fill_addr
 .done_fill_addr:
@@ -153,7 +156,7 @@ _fill_sockaddr_in6:
   add rcx, 0x10
 
   lea r10, [rdi+rcx]
-  mov dword [r10], 0x0    ; sin6_scope_id
+  mov dword [r10], 0x0      ; sin6_scope_id
 
 	ret
 

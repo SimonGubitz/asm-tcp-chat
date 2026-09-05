@@ -1,6 +1,6 @@
 ; src/runtime/echo.asm
 %include "linux64.inc"
-%define MAX_EVENTS 10
+%define MAX_EVENTS 1
 
 ; ../connection/socket_ipv6.asm
 extern _socket_accept
@@ -76,7 +76,7 @@ _echo_runtime:
 
 
   ; while loop:
-.loop:
+; .loop:
 
   ; INFO:
   ; int   epoll_wait(int epfd, struct epoll_event events[n], int n, int timeout);
@@ -84,12 +84,10 @@ _echo_runtime:
   ; int epoll_pwait2(int epfd, struct epoll_event events[n], int n, const struct timespec *_Nullable timeout, const sigset_t *_Nullable sigmask);
 
 
-  lea rdi, epoll_event          ; point to `epoll_event`
-  call _construct_epoll_event   ; write into `epoll_event`
-  mov rsi, rdi                  ; assign to rsi
-
   lea r9, epoll_fd
   mov rdi, [r9]
+
+  lea rsi, epoll_event          ; point to `epoll_event`
 
   mov rdx, MAX_EVENTS   ; max events
   mov r10, 0x493E0      ; 5min timeout
@@ -101,7 +99,7 @@ _echo_runtime:
 
   ; accept
 
-.end_loop:
+; .end_loop:
 
   ; INFO:
   ; int close(int fd);

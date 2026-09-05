@@ -61,6 +61,15 @@ void test_socket_bind(int sockfd) {
     printf("encountered error: %d\n", bind_err * -1);
     return;
   }
+
+  printf("family: %d\n", sock_in6.sin6_family);
+  printf("port: %d\n", sock_in6.sin6_port);
+  printf("flowinfo: %d\n", sock_in6.sin6_flowinfo);
+
+  char buf[28];
+  inet_ntop(AF_INET6, &sock_in6.sin6_addr, buf, sizeof(buf));
+  printf("addr: %s\n", buf);
+  printf("scope id: %d\n", sock_in6.sin6_scope_id);
 }
 
 void test_socket_listen(int sockfd) {
@@ -171,7 +180,10 @@ void test_construct_epoll_event() {
 
 int main() {
 
-  test_construct_epoll_event();
+  int sockfd = test_socket_create();
+  test_socket_bind(sockfd);
+  // test_fill_sockaddr_in6();
+  // test_construct_epoll_event();
 
   return 0;
 }
