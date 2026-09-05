@@ -18,12 +18,10 @@ PORT := 1234
 .PHONY: run debug
 
 $(BIN): $(OBJS)
-	@echo "linking"
 	mkdir -p $(@D)
 	$(LD) $(LDFLAGS) $(OBJS) -o $@
 
 $(BUILD_DIR)/%.o: $(SOURCE_DIR)/%.asm
-	@echo "assembling + $(@D)"
 	mkdir -p $(@D)
 	$(ASM) $(ASMFLAGS) -o $@ $<
 
@@ -34,6 +32,11 @@ build: $(BIN)
 
 run: $(BIN)
 	./$(BIN)
+
+run-test: clean build
+	# gcc -no-pie $(OBJS) -o bin/test && ./bin/test
+	gcc -no-pie src/test.c bin/build/connection/socket_ipv6.o bin/build/error.o bin/build/runtime/echo.o -o bin/test && ./bin/test
+	
 
 clean:
 	$(RM) -r $(OUTPUT_DIR)/**

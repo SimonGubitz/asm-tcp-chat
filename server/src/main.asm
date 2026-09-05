@@ -8,6 +8,11 @@ extern _socket_bind
 extern _socket_listen
 extern _socket_close
 
+; ./error.asm
+extern _handle_error
+extern _exit_failure
+extern _exit_success
+
 ; ./runtime/echo.asm
 extern _echo_runtime
 
@@ -18,11 +23,6 @@ section .bss
   errno_str_len resb 1
 
 section .data
-  gen_errstr db "There has been an error. ", 0x0
-  gen_errstrlen equ $ - gen_errstr
-
-  gen_errstr_suffix db "Error Code: ", 0x0
-  gen_errstr_suffixlen equ $ - gen_errstr_suffix
 
   create_errstr db "Failed to create socket.", 0xA, 0x0
   create_errstrlen equ $ - create_errstr
@@ -42,8 +42,7 @@ section .data
   runtime_errstr db "Unknown error during runtime.", 0xA, 0x0
   runtime_errstrlen equ $ - runtime_errstr
 
-  ; port dw %env("PORT", 1234)
-
+  port dw %env("PORT", 1234)
 
 section .text
   global _start
@@ -62,8 +61,7 @@ _start:
 
   mov rdi, rax            ; rdi <- sockfd
   mov rsi, socket_addr
-  ; mov rdx, port
-  mov rdx, 1234
+  mov rdx, port
   call _socket_bind
   test rax, rax
   jnz .err_socket_bind
@@ -72,7 +70,6 @@ _start:
   test rax, rax
   jnz .err_socket_listen
 
-  ; TODO: enter the runtime here
   push rdi        ; save the sockfd
   call _echo_runtime
 
@@ -113,41 +110,4 @@ _start:
 
 
   ret
-
-;; @brief prints the error message and exits the program
-;; @param rsi string  - error message string
-_handle_error:
-
-  push rdx
-  push rsi
-
-  mov rax, SYS_WRITE
-  mov rdi, STDERR
-  mov rsi, gen_errstr
-  mov rdx, gen_errstrlen
-  syscall ; stdout: "There has been an Error."
-
-  mov rax, SYS_WRITE
-  mov rdi, STDERR
-  pop rsi
-  pop rdx
-  syscall ; std: "Failed to ..."
-
-  jmp _exit_failure
-
-;; @brief exits the program with error code 0
-_exit_success:
-  xor rdi, rdi
-  jmp _exit
-
-;; @brief exits the program with error code 1
-_exit_failure:
-  mov rdi, 1
-  jmp _exit
-
-;; @brief exits the program with the supplied error code
-;; @param rdi error code
-_exit:
-  mov rax, SYS_EXIT
-  syscall
 

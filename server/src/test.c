@@ -14,6 +14,7 @@ extern int _socket_bind(int sockfd, struct sockaddr_in6 *sockaddr, int port);
 extern int _socket_listen(int sockfd);
 extern int _socket_close(int sockfd);
 extern void _fill_sockaddr_in6(struct sockaddr_in6 *sockaddr, int port);
+extern void _construct_epoll_event(struct epoll_event* ev);
 
 void print_constants() {
   printf("AF_INET: %d\n", AF_INET);
@@ -136,30 +137,42 @@ void print_epoll_constants() {
   printf("EPOLLONESHOT equ 0x%0*X\n",   2, EPOLLONESHOT);
   printf("EPOLLWAKEUP equ 0x%0*X\n",    2, EPOLLWAKEUP);
   printf("EPOLLEXCLUSIVE equ 0x%0*X\n", 2, EPOLLEXCLUSIVE);
+
+  /*
+    typedef union epoll_data
+    {
+      void *ptr;
+      int fd;
+      uint32_t u32;
+      uint64_t u64;
+    } epoll_data_t;
+
+    struct epoll_event
+    {
+      uint32_t events;    / Epoll events /
+      epoll_data_t data;  / User data variable /
+    } __EPOLL_PACKED;
+  */
+  struct epoll_event ev; 
+  printf("\nsizeof epoll_event: %2ld\n", sizeof(ev));
+}
+
+void test_construct_epoll_event() {
+
+  struct epoll_event ev;
+  _construct_epoll_event(&ev);
+
+  printf("events: %d\n", ev.events);
+  printf("data (ptr): %p\n", ev.data.ptr);
+  printf("data  (fd): %d\n", ev.data.fd);
+  printf("data (u32): %d\n", ev.data.u32);
+  printf("data (u64): %ld\n", ev.data.u64);
 }
 
 int main() {
 
-  // print_constants();
-
-  // print_sockaddr_in6_sizes();
-  // test_fill_sockaddr_in6();
-  // int sockfd = socket(AF_INET6, SOCK_STREAM, 0);
-  // if (sockfd < 0) {
-  // 	printf("failed to create a socket: %d\n", sockfd);
-  // 	printf("Error description: %s\n", strerror(sockfd*-1));
-  // 	exit(1);
-  // }
-
-  // printf("testing socket\n");
-  // int sockfd = test_socket_create();
-  // test_socket_bind(sockfd);
-  // test_socket_close(sockfd);
-  // printf("done\n");
-
-  printf("SOCK_NONBLOCK equ 0x%0*X\n", 2, SOCK_NONBLOCK);
-
-  print_epoll_constants();
+  test_construct_epoll_event();
 
   return 0;
 }
+

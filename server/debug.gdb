@@ -1,4 +1,4 @@
-# call with gdb -x debug.gdb
+# call with `gdb -x debug.gdb´
 file ./bin/chat-server
 
 b _start
