@@ -1,0 +1,25 @@
+; src/constants/epoll.inc
+
+; sys/epoll.h
+; ops
+EPOLL_CTL_ADD equ 0x01
+EPOLL_CTL_MOD equ 0x03
+EPOLL_CTL_DEL equ 0x02
+
+; events:
+EPOLLIN equ 0x01
+EPOLLOUT equ 0x04
+EPOLLRDHUP equ 0x2000
+EPOLLPRI equ 0x02
+EPOLLERR equ 0x08
+EPOLLHUP equ 0x10
+
+; input flags
+EPOLLET equ 0x80000000
+EPOLLONESHOT equ 0x40000000
+EPOLLWAKEUP equ 0x20000000
+EPOLLEXCLUSIVE equ 0x10000000
+
+
+; sizes
+%define EVENT_SIZE 12

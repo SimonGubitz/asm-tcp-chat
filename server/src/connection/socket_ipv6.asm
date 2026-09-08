@@ -1,7 +1,7 @@
 ; src/connection/socket.asm
 %include "linux64.inc"
-
-IPv6_ADDRLEN equ 0x1C
+%include "socket.inc"
+%include "custom.inc"
 
 section .text
 	global _fill_sockaddr_in6 ; for C testing access
@@ -143,7 +143,7 @@ _fill_sockaddr_in6:
 
   push rcx
 
-  mov r9, rcx  ; r9 = rcx
+  mov r9, rcx
   mov rcx, 0x10
 .fill_addr:
   test rcx, rcx             ; if ( rcx == 0 ) { break; }
