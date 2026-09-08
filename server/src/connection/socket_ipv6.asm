@@ -21,8 +21,8 @@ _create_socket:
   ; call the socket function
   ; socket(AF_INET6, SOCK_STREAM, 0);
   mov rax, SYS_SOCKET
-  mov rdi, AF_INET6
-  mov rsi, SOCK_STREAM
+  mov rdi, AF_INET6       ; IPv6
+  mov rsi, SOCK_STREAM    ; TCP
   mov rdx, 0x0
   syscall
 
@@ -107,6 +107,7 @@ _socket_close:
 ;; @brief fills the sockaddr_in6 struct with
 ;; @param rdi sockaddr * - socket address
 ;; @param rsi        int - port
+;; @clobbers rax
 _fill_sockaddr_in6:
 	xor rcx, rcx
 
@@ -128,8 +129,12 @@ _fill_sockaddr_in6:
   mov word [r10], AF_INET6    ; sin6_family
   add rcx, 0x2
 
+  ; WARNING: Error here, as the two byte in `si` need to be switched around into BigEndian network order
   lea r10, [rdi+rcx]
-  mov word [r10], si          ; sin6_port
+  mov byte [r10+1], sil
+  ; right shift `shr` register to move the upper bits into the lower
+  shr si, 8
+  mov byte [r10], sil          ; sin6_port
   add rcx, 0x2
 
   lea r10, [rdi+rcx]

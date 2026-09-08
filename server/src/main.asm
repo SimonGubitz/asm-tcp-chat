@@ -42,7 +42,7 @@ section .data
   runtime_errstr db "Unknown error during runtime.", 0xA, 0x0
   runtime_errstrlen equ $ - runtime_errstr
 
-  port dw %env("PORT", 1234)
+  ; port dw %env("PORT", 1234)
 
 section .text
   global _start
@@ -55,7 +55,8 @@ _start:
 
   mov rdi, rax            ; rdi <- sockfd
   mov rsi, socket_addr
-  mov rdx, port
+  ; mov rdx, port
+  mov rdx, 1234
   call _socket_bind
   test rax, rax
   jnz .err_socket_bind

@@ -16,6 +16,9 @@ section .bss
 
 
 section .data
+  teststr db "this is a test", 0xA, 0x0
+  teststr_len equ $ - teststr
+
   epoll_create_errstr db "Failed to create epoll instance.", 0xA, 0x0
   epoll_create_errstrlen equ $ - epoll_create_errstr
 
@@ -83,19 +86,28 @@ _echo_runtime:
   ; int  epoll_pwait(int epfd, struct epoll_event events[n], int n, int timeout, const sigset_t *_Nullable sigmask);
   ; int epoll_pwait2(int epfd, struct epoll_event events[n], int n, const struct timespec *_Nullable timeout, const sigset_t *_Nullable sigmask);
 
-
   lea r9, epoll_fd
   mov rdi, [r9]
 
-  lea rsi, epoll_event          ; point to `epoll_event`
+  ; TODO: create a different
+  lea rsi, epoll_event  ; point to `epoll_event`
 
   mov rdx, MAX_EVENTS   ; max events
   mov r10, 0x493E0      ; 5min timeout
   ; mov r10, 0x36EE80   ; 60min timeout
 
   mov rax, SYS_EPOLL_WAIT
+  syscall               ; WARNING: it hangs here even on `nc -v6 ::1 1234` 
+
+  ; rax holds the nfds <- number of events
+
+
+  ; test print
+  mov rax, SYS_WRITE
+  mov rdi, STDOUT
+  mov rsi, teststr
+  mov rdx, teststr_len
   syscall
-  ; rax holds the nfds
 
   ; accept
 
@@ -128,12 +140,14 @@ _echo_runtime:
 
 ;; @brief constructs the `epoll_event` struct
 ;; @param rdi struct epoll_event * - pointer to the epoll_event
-;; @clobbers rcx
+;; @clobbers rcx, rdx
 _construct_epoll_event:
   xor rcx, rcx
 
   ; Definition: uint32_t events;
-  mov dword [rdi+rcx], EPOLLIN    ; epoll_event.events = EPOLLIN;
+  mov edx, EPOLLIN
+  or edx, EPOLLET
+  mov dword [rdi+rcx], edx  ; epoll_event.events = EPOLLIN | EPOLLET;
   add rcx, 4
 
   lea r8, listen_sock
