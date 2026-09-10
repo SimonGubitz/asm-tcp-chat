@@ -1,5 +1,6 @@
 ; src/constants/linux64.inc
 
+SYS_READ    equ 0x00
 SYS_WRITE   equ 0x01
 SYS_EXIT    equ 0x3C
 SYS_SOCKET  equ 0x29

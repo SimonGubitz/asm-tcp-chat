@@ -129,7 +129,6 @@ _fill_sockaddr_in6:
   mov word [r10], AF_INET6    ; sin6_family
   add rcx, 0x2
 
-  ; WARNING: Error here, as the two byte in `si` need to be switched around into BigEndian network order
   lea r10, [rdi+rcx]
   mov byte [r10+1], sil
   ; right shift `shr` register to move the upper bits into the lower

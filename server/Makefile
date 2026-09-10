@@ -9,7 +9,13 @@ OUTPUT_DIR := bin
 BUILD_DIR := $(OUTPUT_DIR)/build
 SOURCE_DIR := src
 
-SRC := $(SOURCE_DIR)/main.asm $(SOURCE_DIR)/error.asm $(SOURCE_DIR)/connection/socket_ipv6.asm $(SOURCE_DIR)/runtime/echo/echo.asm
+SRC := $(SOURCE_DIR)/main.asm \
+			 $(SOURCE_DIR)/error.asm \
+			 $(SOURCE_DIR)/connection/socket_ipv6.asm \
+			 $(SOURCE_DIR)/runtime/echo/echo.asm \
+			 $(SOURCE_DIR)/message/read.asm \
+			 $(SOURCE_DIR)/message/write.asm
+
 OBJS = $(SRC:$(SOURCE_DIR)/%.asm=$(BUILD_DIR)/%.o)
 BIN := $(OUTPUT_DIR)/chat-server
 
@@ -35,7 +41,7 @@ run: $(BIN)
 
 run-test: clean build
 	# gcc -no-pie $(OBJS) -o bin/test && ./bin/test
-	gcc -no-pie src/test.c bin/build/connection/socket_ipv6.o bin/build/error.o bin/build/runtime/echo.o -o bin/test && ./bin/test
+	gcc -no-pie src/test.c bin/build/connection/socket_ipv6.o bin/build/error.o bin/build/runtime/echo/echo.o -o bin/test && ./bin/test
 
 run-test-server:
 	gcc src/test-server.c -o bin/test-server && ./bin/test-server

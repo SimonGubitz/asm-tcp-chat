@@ -14,13 +14,16 @@ extern int _socket_bind(int sockfd, struct sockaddr_in6 *sockaddr, int port);
 extern int _socket_listen(int sockfd);
 extern int _socket_close(int sockfd);
 extern void _fill_sockaddr_in6(struct sockaddr_in6 *sockaddr, int port);
-extern void _construct_epoll_event(struct epoll_event* ev);
+extern void _construct_epoll_event(struct epoll_event* ev, int sockfd);
 
 void print_constants() {
-  printf("AF_INET: %d\n", AF_INET);
-  printf("AF_INET6: %d\n\n", AF_INET6);
-  printf("SOCK_STREAM: %d\n", SOCK_STREAM);
-  printf("SOCK_DGRAM: %d\n", SOCK_DGRAM);
+  printf("AF_INET equ 0x%X\n", AF_INET);
+  printf("AF_INET6 equ 0x%X\n\n", AF_INET6);
+  printf("SOCK_STREAM equ 0x%X\n", SOCK_STREAM);
+  printf("SOCK_DGRAM equ 0x%X\n", SOCK_DGRAM);
+
+  printf("SOCK_NONBLOCK equ 0x%X\n", SOCK_NONBLOCK);
+  printf("SOCK_CLOEXEC equ 0x%X\n", SOCK_CLOEXEC);
 }
 
 void print_sockaddr_in6_sizes() {
@@ -174,6 +177,9 @@ void test_construct_epoll_event() {
 }
 
 int main() {
+
+  print_constants();
+  return 0;
 
   int sockfd = test_socket_create();
   test_socket_bind(sockfd);

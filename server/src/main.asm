@@ -13,14 +13,11 @@ extern _handle_error
 extern _exit_failure
 extern _exit_success
 
-; ./runtime/echo.asm
+; ./runtime/echo/echo.asm
 extern _echo_runtime
 
 section .bss
-  socket_addr resb 16      ; 16 bytes
-
-  errno_str resd 1
-  errno_str_len resb 1
+  socket_addr   resb 16      ; 16 bytes
 
 section .data
 
@@ -56,8 +53,9 @@ _start:
   mov rdi, rax            ; rdi <- sockfd
   mov rsi, socket_addr
   ; mov rdx, port
-  mov rdx, 1234
+  mov rdx, 1735
   call _socket_bind
+
   test rax, rax
   jnz .err_socket_bind
 

@@ -13,7 +13,7 @@ section .text
 
 ;; @brief prints the error message and exits the program
 ;; @param rsi string - error message string
-;; @param rdx    int - length of the error string
+;; @param rdx    int - length of the error string | -1 for no custom message
 _handle_error:
 
   push rdx
@@ -25,10 +25,15 @@ _handle_error:
   mov rdx, gen_errstrlen
   syscall ; stdout: "There has been an Error."
 
-  mov rax, SYS_WRITE
-  mov rdi, STDERR
+
   pop rsi
   pop rdx
+
+  cmp rdx, -0x1     ; if no custom message is provided
+  je _exit_failure
+
+  mov rax, SYS_WRITE
+  mov rdi, STDERR
   syscall ; std: "Failed to ..."
 
   jmp _exit_failure

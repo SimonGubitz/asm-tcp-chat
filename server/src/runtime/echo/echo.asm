@@ -6,32 +6,50 @@
 %define MAX_CONNS   1
 %define MAX_EVENTS  1
 
-; ../connection/socket_ipv6.asm
+; ../../message/read.asm
+extern _read_message
+
+; ../../message/write.asm
+extern _write_message
+
+; ../../connection/socket_ipv6.asm
 extern _socket_accept
 
-; ../error.asm
+; ../../error.asm
 extern _handle_error
 
 section .bss
-  amnt_conns  resb 1
+  amnt_conns    resb 1
 
-  listen_sock resq 1
-  conn_sock   resq 1
-  epoll_fd    resq 1
+  listen_sock   resq 1
+  conn_sock     resq 1
+  epoll_fd      resq 1
 
   epoll_event   resb EVENT_SIZE
   epoll_revent  resb EVENT_SIZE ; INFO: only a one element array, since its an echo server
 
-  conn_addr_ptr resb 8
+  conn_addr     resb 16
+
+  addr_ptr      resb 8
+  addr_len      resb 4
 
 
 section .data
 
-  teststr                 db "this is a test", 0xA, 0x0
+  teststr                 db "received an input", 0xA, 0x0
   teststr_len             equ $ - teststr
+
+  teststr2                db "accepting new connection", 0xA, 0x0
+  teststr2_len            equ $ - teststr2
+
+  teststr3                db "rejecting connection", 0xA, 0x0
+  teststr3_len            equ $ - teststr3
 
   rejectstr               db "The maximum amounts of connections has already been reached.", 0xA, 0x0
   rejectstr_len           equ $ - rejectstr
+
+  fail_accept_errstr      db "Failed to accept socket.", 0xA, 0x0
+  fail_accept_errstr_len  equ $ - fail_accept_errstr
 
   epoll_create_errstr     db "Failed to create epoll instance.", 0xA, 0x0
   epoll_create_errstrlen  equ $ - epoll_create_errstr
@@ -76,6 +94,7 @@ _echo_runtime:
 
   ; TODO: construct a epoll_event
   lea rdi, epoll_event
+  mov rdx, [listen_sock]
   call _construct_epoll_event
   mov r10, rdi
 
@@ -126,36 +145,45 @@ _echo_runtime:
   cmp rcx, r10
   jge .end_event_iterate
 
+  ; INFO: 
+  ;
+
+  mov rax, rcx
   mul rcx, EVENT_SIZE
+
+  mov rdx, rax
   mov eax, dword [epoll_revent+rdx]   ; get the event
-  add rdx, 4
+  add rdx, 4  ; <- rdx holds undefined data
   mov esi, dword [epoll_revent+rdx]   ; INFO: +4 to get to the union | dword/eax to get the fd
 
-  cmp esi, listen_sock        ; if its the listen socket, new connections need to be accepted
-  jne .accept_connection_done
+  cmp esi, [listen_sock]
+  jne .accept_connection_done         ; if its the listen socket, new connections need to be accepted
+
+
+.accept_connection:
 
   ; INFO:
   ;  int accept(int sockfd, struct sockaddr *_Nullable restrict addr, socklen_t *_Nullable restrict addrlen);
   ; int accept4(int sockfd, struct sockaddr *_Nullable restrict addr, socklen_t *_Nullable restrict addrlen, int flags);
-
-  mov rax, SYS_WRITE
-  mov rdi, STDOUT
-  mov rsi, "test"
-  mov rdx, 4
-  syscall
-
   mov rax, SYS_ACCEPT
   mov rdi, [listen_sock]
-
-  lea rsi, conn_addr_ptr
-  mov rdx, NULL
+  lea rsi, addr_ptr
+  lea rdx, addr_len
   syscall
 
+  cmp rax, 0
+  mov rsi, fail_accept_errstr
+  mov rdx, fail_accept_errstr_len
+  jl _handle_error      ; if (return < 0 ) { _handle_error(-0x1) }
 
-  ; INFO: check if the maximum amount of connections is reached already, and if so reject, maybe with a message
-  cmp byte [amnt_conns], MAX_CONNS
-  jne .add_socket_to_epoll
+  add [amnt_conns], 1
 
+
+  ; check if the maximum amount of connections is reached already, and if so reject, maybe with a message
+  cmp [amnt_conns], MAX_CONNS
+  jle .add_socket_to_epoll
+
+.reject_connection:
   mov rdi, rax  ; conn_sock
   mov rsi, rejectstr
   mov rdx, rejectstr_len
@@ -180,6 +208,7 @@ _echo_runtime:
 
   ; reuse the epoll_event
   lea rdi, epoll_event
+  mov rdx, [conn_sock]
   call _construct_epoll_event
   mov r10, rdi
 
@@ -191,6 +220,14 @@ _echo_runtime:
   mov rax, SYS_EPOLL_CTL
   syscall
 
+  ; 
+  cmp rax, 0
+  je .accept_connection_done
+
+  mov rsi, epoll_ctl_errstr
+  mov rdx, epoll_ctl_errstrlen
+  jmp _handle_error
+
 
 .accept_connection_done:
 
@@ -198,7 +235,14 @@ _echo_runtime:
   test eax, EPOLLIN
   ; jnz .read_msg
 
-  ; accept
+  mov rdi, [conn_sock]
+  call _read_message
+
+  ; mov rsi, rdi          ;
+  ; mov rdi, [conn_sock]  ; socket
+  call _write_message
+
+
 .end_event_iterate:
 
   jmp .runtime_loop
@@ -229,17 +273,19 @@ _echo_runtime:
 
 ;; @brief constructs the `epoll_event` struct
 ;; @param rdi struct epoll_event * - pointer to the epoll_event
+;; @param rdx                  int - socket file descriptor
 ;; @clobbers rcx, rdx
 _construct_epoll_event:
   xor rcx, rcx
 
+  push rdx
   ; Definition: uint32_t events;
   mov edx, EPOLLIN
   or edx, EPOLLET
   mov dword [rdi+rcx], edx  ; epoll_event.events = EPOLLIN | EPOLLET;
   add rcx, 4
 
-  mov rdx, [listen_sock]
+  pop rdx
   mov [rdi+rcx], rdx        ; epoll_events.data.fd = listen_sock;
 
   ret
