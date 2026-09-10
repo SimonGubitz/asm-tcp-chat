@@ -24,8 +24,8 @@ This is a TCP server running with IPv6 Connections.
 
 ## Goals
 
-- [ ] Fully functional IPv6 sockets
-- [ ] Echo server
+- [x] Fully functional IPv6 sockets
+- [x] Echo server
 - [ ] Direct message
 - [ ] Group chats
 - [ ] Chat history
