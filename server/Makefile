@@ -41,7 +41,7 @@ run: $(BIN)
 
 run-test: clean build
 	# gcc -no-pie $(OBJS) -o bin/test && ./bin/test
-	gcc -no-pie src/test.c bin/build/connection/socket_ipv6.o bin/build/error.o bin/build/runtime/echo/echo.o -o bin/test && ./bin/test
+	gcc -no-pie src/test.c bin/build/connection/socket_ipv6.o bin/build/error.o bin/build/runtime/echo/echo.o bin/build/message/read.o bin/build/message/write.o -o bin/test && ./bin/test
 
 run-test-server:
 	gcc src/test-server.c -o bin/test-server && ./bin/test-server

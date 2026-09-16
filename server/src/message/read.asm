@@ -1,5 +1,6 @@
 ; src/message/read.asm
 %include "linux64.inc"
+%include "message.inc"
 
 extern _handle_error
 
@@ -19,7 +20,9 @@ section .text
 
 ;; @brief reads, encrypts and formats the message
 ;; @param rdi int - connected socket
-;; @returns rax
+;; @returns rax void * - pointer to the buffer
+;; @returns rdi size_t - size of the buffer
+;; @returns rsi   flag - whether it is a EOF (0) or normal message (1)
 _read_message:
 
   ; INFO: ssize_t read(int fd, void buf[count], size_t count);
@@ -28,19 +31,28 @@ _read_message:
   mov rdx, buflen
   syscall
 
-  push rax; actual length of the message
+  xor rsi, rsi    ; set return to 0
 
-  mov rax, SYS_WRITE
-  mov rdi, STDOUT
-  mov rsi, teststr
-  mov rdx, teststr_len
-  syscall
+  ; check if its an EOF
+  cmp rax, 0
+  je .handle_eof
+
+  cmp rax, buflen
+  jg .handle_too_long
+
+  jmp .handle_message     ; base case
+
+.handle_eof:
+  or rsi, MSG_FLAG_EOF
+
+.handle_too_long:
+  or rsi, MSG_FLAG_TOO_LONG
 
 
-  mov rax, SYS_WRITE
-  mov rdi, STDOUT
-  mov rsi, buf
-  pop rdx
-  syscall
+.handle_message:
+
+  lea rax, buf
+  mov rdi, buflen
+  ; rsi is set already
 
   ret

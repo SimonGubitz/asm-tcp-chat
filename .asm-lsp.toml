@@ -6,6 +6,6 @@ instruction_set = "x86-64"
 
 [project.opts]
 compiler = "nasm"
-compile_flags_txt = ["-i", "./src/constants/", "-f", "elf64", "-g", "-F", "dwarf"]
+compile_flags_txt = ["-i", "./src/constants/", "-f", "elf64", "-g", "-F", "dwarf", "-o", "server/bin"]
 diagnostics = true
 default_diagnostics = false

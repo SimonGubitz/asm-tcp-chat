@@ -1,6 +1,7 @@
 ; src/runtime/echo.asm
 %include "linux64.inc"
 %include "epoll.inc"
+%include "message.inc"
 %include "custom.inc"
 
 %define MAX_CONNS   1
@@ -36,14 +37,11 @@ section .bss
 
 section .data
 
+  goodbyestr              db "Goodbye, closing connection.", 0xA, 0x0
+  goodbyestr_len          equ $ - goodbyestr
+
   teststr                 db "received an input", 0xA, 0x0
   teststr_len             equ $ - teststr
-
-  teststr2                db "accepting new connection", 0xA, 0x0
-  teststr2_len            equ $ - teststr2
-
-  teststr3                db "rejecting connection", 0xA, 0x0
-  teststr3_len            equ $ - teststr3
 
   rejectstr               db "The maximum amounts of connections has already been reached.", 0xA, 0x0
   rejectstr_len           equ $ - rejectstr
@@ -220,27 +218,56 @@ _echo_runtime:
   mov rax, SYS_EPOLL_CTL
   syscall
 
-  ; 
   cmp rax, 0
-  je .accept_connection_done
+  je .runtime_loop       ; INFO: jump to event_iterate
 
   mov rsi, epoll_ctl_errstr
   mov rdx, epoll_ctl_errstrlen
   jmp _handle_error
 
-
 .accept_connection_done:
 
-  ; test which event type it is
-  test eax, EPOLLIN
+  ; TODO: test which event type it is
+  ; test eax, EPOLLIN
   ; jnz .read_msg
 
   mov rdi, [conn_sock]
   call _read_message
 
-  ; mov rsi, rdi          ;
-  ; mov rdi, [conn_sock]  ; socket
+  ; if its EOF
+  test rsi, MSG_FLAG_EOF
+  jne .close_connection
+
+  test rsi, MSG_FLAG_DISCONNECT
+  jne .close_connection
+
+  mov rdx, [conn_sock]
   call _write_message
+  jmp .event_iterate
+
+
+.close_connection:
+
+  ; say goodbye
+  mov rax, SYS_WRITE
+  mov rdi, STDOUT
+  mov rsi, goodbyestr
+  mov rdx, goodbyestr_len
+  syscall
+
+  ; TODO: remove from the epoll instance
+  ; int epoll_ctl(int epfd, int op, int fd, struct epoll_event *_Nullable event);
+  ; ==> epoll_ctl(epollfd, EPOLL_CTL_DEL, listen_sock, NULL)
+
+  mov rax, SYS_EPOLL_CTL
+  mov rdi, [epoll_fd]
+  mov rsi, EPOLL_CTL_DEL
+  mov rdx, [listen_sock]
+  mov r10, NULL
+  syscall
+
+
+  jmp .end_runtime_loop
 
 
 .end_event_iterate:

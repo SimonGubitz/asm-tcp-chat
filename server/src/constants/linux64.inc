@@ -2,6 +2,7 @@
 
 SYS_READ    equ 0x00
 SYS_WRITE   equ 0x01
+SYS_WRITEV  equ 0x14
 SYS_EXIT    equ 0x3C
 SYS_SOCKET  equ 0x29
 SYS_BIND    equ 0x31
@@ -9,6 +10,10 @@ SYS_CONNECT equ 0x2A
 SYS_LISTEN  equ 0x32
 SYS_CLOSE   equ 0x03
 SYS_ACCEPT  equ 0x2B
+SYS_MMAP    equ 0x09
+SYS_MUNMAP  equ 0x0B
+SYS_BRK     equ 0x0C
+
 
 SYS_EPOLL_CREATE  equ 0x0D5
 SYS_EPOLL_CREATE1 equ 0x123

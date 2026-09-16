@@ -36,6 +36,11 @@ This is a TCP server running with IPv6 Connections.
 
 - [ ] Nothing
 
+### Future
+
+- [ ] Handle EOFs with a proper disconnect
+- [ ] 
+
 ### Ideas
 
 - [x] %env() directive to supply the port

@@ -24,6 +24,11 @@ void print_constants() {
 
   printf("SOCK_NONBLOCK equ 0x%X\n", SOCK_NONBLOCK);
   printf("SOCK_CLOEXEC equ 0x%X\n", SOCK_CLOEXEC);
+
+  printf("EOF equ 0x%X\n", EOF);
+
+  printf("\n\nsizeof(ssize_t) = %ld\n", sizeof(ssize_t));
+  printf("sizeof(struct iovec) = %ld\n", sizeof(struct iovec));
 }
 
 void print_sockaddr_in6_sizes() {
@@ -160,14 +165,19 @@ void print_epoll_constants() {
       epoll_data_t data;  / User data variable /
     } __EPOLL_PACKED;
   */
-  struct epoll_event ev; 
+  struct epoll_event ev;
   printf("\nsizeof epoll_event: %2ld\n", sizeof(ev));
 }
 
 void test_construct_epoll_event() {
 
+  int sockfd = socket(AF_INET6, SOCK_STREAM, 0);
+  if (sockfd < 0) {
+    exit(1);
+  }
+
   struct epoll_event ev;
-  _construct_epoll_event(&ev);
+  _construct_epoll_event(&ev, sockfd);
 
   printf("events: %d\n", ev.events);
   printf("data (ptr): %p\n", ev.data.ptr);
@@ -179,10 +189,10 @@ void test_construct_epoll_event() {
 int main() {
 
   print_constants();
-  return 0;
+  // return 0;
 
-  int sockfd = test_socket_create();
-  test_socket_bind(sockfd);
+  // int sockfd = test_socket_create();
+  // test_socket_bind(sockfd);
   // test_fill_sockaddr_in6();
   // test_construct_epoll_event();
 
