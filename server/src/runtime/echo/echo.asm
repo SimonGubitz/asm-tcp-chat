@@ -255,10 +255,7 @@ _echo_runtime:
   mov rdx, goodbyestr_len
   syscall
 
-  ; TODO: remove from the epoll instance
-  ; int epoll_ctl(int epfd, int op, int fd, struct epoll_event *_Nullable event);
-  ; ==> epoll_ctl(epollfd, EPOLL_CTL_DEL, listen_sock, NULL)
-
+  ; remove from epoll
   mov rax, SYS_EPOLL_CTL
   mov rdi, [epoll_fd]
   mov rsi, EPOLL_CTL_DEL
