@@ -61,8 +61,9 @@ section .text
 
 
 ;; @brief handle new connections, and echo each response back
+;; @assumption sockfd is a valid socket, that has been bound to an address and is in LISTEN state
 ;; @param rdi int - sockfd
-;; @clobbers r9, r8, rcx
+;; @clobbers rcx
 _echo_runtime:
 
   mov [amnt_conns], 0
@@ -77,7 +78,6 @@ _echo_runtime:
   ; INFO:
   ; int epoll_create(int size);
   ; int epoll_create1(int flags);
-
   mov rax, SYS_EPOLL_CREATE1
   mov rdi, 0x0
   syscall
@@ -255,10 +255,7 @@ _echo_runtime:
   mov rdx, goodbyestr_len
   syscall
 
-  ; TODO: remove from the epoll instance
-  ; int epoll_ctl(int epfd, int op, int fd, struct epoll_event *_Nullable event);
-  ; ==> epoll_ctl(epollfd, EPOLL_CTL_DEL, listen_sock, NULL)
-
+  ; remove from epoll
   mov rax, SYS_EPOLL_CTL
   mov rdi, [epoll_fd]
   mov rsi, EPOLL_CTL_DEL

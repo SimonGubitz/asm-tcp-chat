@@ -5,4 +5,4 @@ file ./bin/chat-server
 
 tui enable
 b _start
-r
+run

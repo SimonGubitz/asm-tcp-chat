@@ -25,6 +25,7 @@ This is a TCP server running with IPv6 Connections.
 ## Goals
 
 - [x] Fully functional IPv6 sockets
+- [x] epoll
 - [x] Echo server
 - [ ] Direct message
 - [ ] Group chats
@@ -38,12 +39,11 @@ This is a TCP server running with IPv6 Connections.
 
 ### Future
 
-- [ ] Handle EOFs with a proper disconnect
-- [ ] 
+- [x] Handle EOFs with a proper disconnect
 
 ### Ideas
 
-- [x] %env() directive to supply the port
+- [ ] %env() directive to supply the port
 
 
 

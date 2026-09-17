@@ -5,12 +5,11 @@
 extern _handle_error
 
 
+%define buflen 1024
 section .bss
-  buf resb 1024
+  buf resb buflen
 
 section .data
-  buflen dw 1024
-
   teststr     db "Client said: ", 0xA, 0x0
   teststr_len equ $ - teststr
 
@@ -25,7 +24,8 @@ section .text
 ;; @returns rsi   flag - whether it is a EOF (0) or normal message (1)
 _read_message:
 
-  ; INFO: ssize_t read(int fd, void buf[count], size_t count);
+  ; INFO:
+  ; ssize_t read(int fd, void buf[count], size_t count);
   mov rax, SYS_READ
   lea rsi, buf
   mov rdx, buflen
