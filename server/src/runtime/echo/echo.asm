@@ -62,10 +62,10 @@ section .text
 
 ;; @brief handle new connections, and echo each response back
 ;; @param rdi int - sockfd
-;; @clobbers r9, r8, rcx
+;; @clobbers r10, rcx
 _echo_runtime:
 
-  mov [amnt_conns], 0
+  mov byte [amnt_conns], 0
   mov [listen_sock], rdi
 
   ; create an epoll instance
@@ -143,11 +143,9 @@ _echo_runtime:
   cmp rcx, r10
   jge .end_event_iterate
 
-  ; INFO: 
-  ;
-
   mov rax, rcx
-  mul rcx, EVENT_SIZE
+  ; mul rcx, 12
+  mov rax, 0
 
   mov rdx, rax
   mov eax, dword [epoll_revent+rdx]   ; get the event
@@ -174,11 +172,11 @@ _echo_runtime:
   mov rdx, fail_accept_errstr_len
   jl _handle_error      ; if (return < 0 ) { _handle_error(-0x1) }
 
-  add [amnt_conns], 1
+  add byte [amnt_conns], 1
 
 
   ; check if the maximum amount of connections is reached already, and if so reject, maybe with a message
-  cmp [amnt_conns], MAX_CONNS
+  cmp byte [amnt_conns], MAX_CONNS
   jle .add_socket_to_epoll
 
 .reject_connection:

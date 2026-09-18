@@ -1,8 +1,19 @@
-FROM ubuntu:26.10
+FROM debian:bookworm
 
 RUN apt-get update && \
-    apt-get install -y nasm gdb build-essential file bsdmainutils
+    apt-get install -y \
+        nasm \
+        make \
+        gcc \
+        gdb && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-CMD ["/bin/bash"]
+COPY . .
+
+WORKDIR /app/server
+
+RUN make clean-build
+
+CMD ["./bin/chat-server"]
