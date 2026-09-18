@@ -1,0 +1,12 @@
+services:
+  server:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: asm-server
+    stdin_open: true
+    tty: true
+    restart: "no"
+    ports:
+      - "1735:1735"
