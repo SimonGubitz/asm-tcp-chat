@@ -61,8 +61,13 @@ section .text
 
 
 ;; @brief handle new connections, and echo each response back
+;; @assumption sockfd is a valid socket, that has been bound to an address and is in LISTEN state
 ;; @param rdi int - sockfd
+<<<<<<< HEAD
+;; @clobbers rcx
+=======
 ;; @clobbers r10, rcx
+>>>>>>> 6eb563bfb24f3369edad2e4ac4cd0c4b787c1595
 _echo_runtime:
 
   mov byte [amnt_conns], 0
@@ -77,7 +82,6 @@ _echo_runtime:
   ; INFO:
   ; int epoll_create(int size);
   ; int epoll_create1(int flags);
-
   mov rax, SYS_EPOLL_CREATE1
   mov rdi, 0x0
   syscall
