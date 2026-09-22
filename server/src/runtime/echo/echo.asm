@@ -10,9 +10,6 @@
 ; ../../message/read.asm
 extern _read_message
 
-; ../../message/write.asm
-extern _write_message
-
 ; ../../connection/socket_ipv6.asm
 extern _socket_accept
 
@@ -63,11 +60,7 @@ section .text
 ;; @brief handle new connections, and echo each response back
 ;; @assumption sockfd is a valid socket, that has been bound to an address and is in LISTEN state
 ;; @param rdi int - sockfd
-<<<<<<< HEAD
-;; @clobbers rcx
-=======
 ;; @clobbers r10, rcx
->>>>>>> 6eb563bfb24f3369edad2e4ac4cd0c4b787c1595
 _echo_runtime:
 
   mov byte [amnt_conns], 0
@@ -244,7 +237,8 @@ _echo_runtime:
   jne .close_connection
 
   mov rdx, [conn_sock]
-  call _write_message
+  call _handle_echo_actions
+
   jmp .event_iterate
 
 

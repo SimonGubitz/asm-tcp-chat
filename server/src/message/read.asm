@@ -48,8 +48,12 @@ _read_message:
 .handle_too_long:
   or rsi, MSG_FLAG_TOO_LONG
 
-
 .handle_message:
+
+  ; check if the first 5 byte
+  call _is_protocol
+  cmp rax, 1
+  je .read_protocol_message
 
   lea rax, buf
   mov rdi, buflen

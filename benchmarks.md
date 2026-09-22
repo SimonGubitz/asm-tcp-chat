@@ -11,7 +11,10 @@ This should be an overview over the entire server, how many connections in the g
 ```
 ## Methodology:
 
+describe the compilation flags of nasm and wether the debug symbols are included
+
 {description}
+
 
 ## Results
 
