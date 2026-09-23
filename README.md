@@ -50,12 +50,12 @@ These runtimes manage the epoll instance and orchestrate the response or write t
 
 ## Design
 
-Read more about the protocol design [here](./server/src/protocol/README.md).
+Read more about the protocol design [here](./docs/protocol.md).
 
 ### Why `epoll`?
 
 Using `epoll` allows for an event driven architecture, and thus allows for performance and efficiency gains.
-In conjunction with the [custom protocol](./server/src/protocol/README.md) the benchmarks can be seen [here](./benchmarks.md).
+In conjunction with the [custom protocol](./docs/protocol.md) the benchmarks can be seen [here](./docs/benchmarks.md).
 
 ### Why `IPv6`?
 

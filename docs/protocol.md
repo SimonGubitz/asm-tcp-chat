@@ -23,7 +23,7 @@ To keep a consistent tone, in the doc, the following definitions are used:
 |-----------------------|---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Magic bytes           |              8 byte | "0x99 0x61 0x73 0x6D 0x63 0x68 0x61 0x74 0x0A" which is 0x99 + the hexadecimal representation of the string "asmchat". Where the 0x99 falls outside of the ascii range and thus disables wrongfully reading the following binary protocol as ascii. |
 | Version               |              4 byte | 8bit major, 8bit minor, 16bit patch                                                                                                                                                                                                                 |
-| Action / Message type |              1 byte | To differentiate between `PROT_MSG_CHAT`, `PROT_MSG_COMMAND`, `PROT_MSG_DISCONNECT` and potential future flags. [reference](./server/src/constants/protocol.inc)                                                                                    |
+| Action / Message type |              1 byte | To differentiate between `PROT_MSG_CHAT`, `PROT_MSG_COMMAND`, `PROT_MSG_DISCONNECT` and potential future flags. [reference](../server/src/constants/protocol.inc)                                                                                    |
 |                 Pad 3 |              3 byte | Padding to align the upcoming `Message Length` and `Message` to a 8 byte boundry.                                                                                                                                                                   |
 | Message Length        |              2 byte |                                                                                                                                                                                                                                                     |
 | Message               | 1004 byte (maximum) |                                                                                                                                                                                                                                                     |
@@ -31,6 +31,7 @@ To keep a consistent tone, in the doc, the following definitions are used:
 
 ## Transmission Layout
 
+```
              Version   Padding          Message
               ↓          ↓                ↓
 |--------------------------------------------------|
@@ -38,25 +39,28 @@ To keep a consistent tone, in the doc, the following definitions are used:
 |--------------------------------------------------|
    ↑                ↑         ↑
   magic bytes     Type    Message Length
+```
 
 
 ## Supported Actions
 
 - Authenticate / Initialize
 - Chat Message
-- 
+- Join a Chat-Room
+- Create a Chat-Room
+- Search Chat-Rooms ???
 
 
 ## Endpoints / Routing
 
 This protocol supports actions based on the `Message Type` property, instead of maintaining separate routes or endpoints.
 To support this variance, the `Message` property cannot and does not define itself with one clear type. As the server might respond to a `PROT_MSG_AUTH` 
-The
 
 
 ## Byte-Order
 
-The protocol uses little-endian encoding.
+The protocol uses little-endian encoding. To reduce unnecessary byte swaps in parsing.
+View the related [benchmarks](./benchmarks.md#byte-order).
 
 
 ## Message Layouts
@@ -66,7 +70,7 @@ The protocol uses little-endian encoding.
 ### Client Messages
 
 <details>
-    <summary>PROT_MSG_AUTH</summary>
+    <summary>PROT_AUTH</summary>
 
     > ~C-Like function~
     > uint prot_auth();
@@ -79,7 +83,7 @@ The protocol uses little-endian encoding.
     ***Request Layout:***
     | Property    | Size                | Description                    |
     |-------------|---------------------|--------------------------------|
-    | Username    |                     | The                            |
+    | Username    | 16 byte             | The                            |
 
     ***Response:***
     The server will respond with a `PROT_SRV_AUTH` response.
@@ -106,12 +110,11 @@ The protocol uses little-endian encoding.
 </details>
 
 <details>
-    <summary>PROT_MSG_COMMAND</summary>
+    <summary>PROT_JOIN_CHAT</summary>
 
     > ~C-Like function~
-    > void prot_command();
+    > void prot_join_chat();
 
-    This is a feature yet to be implemented but thought of to be similar to like minecraft commands, with /my-command.
 
     ***Request Layout:***
     | Property    | Size                | Description                    |
@@ -119,12 +122,13 @@ The protocol uses little-endian encoding.
     |             |                     |                                |
 
     ***Response:***
-    The server will respond with a `PROT_SRV_COMMAND` response.
+    Normally there won't be a response.
+    If there was an error, a `PROT_SRV_ERROR` will be sent.
 
 </details>
 
 <details>
-    <summary>PROT_MSG_REQ_HIST</summary>
+    <summary>PROT_REQ_HIST</summary>
 
     > ~C-Like function~
     > void prot_req_hist();
@@ -154,7 +158,7 @@ The protocol uses little-endian encoding.
 -->
 
 <details>
-    <summary>PROT_MSG_DISCONNECT</summary>
+    <summary>PROT_DISCONNECT</summary>
 
     > ~C-Like function~
     > prot_disconnect()
@@ -166,7 +170,7 @@ The protocol uses little-endian encoding.
 
 ### Server Messages
 
-- PROT_SRV_AUTH     -> acknowledge and confirm the username or potentially if the username already exists
-- PROT_SRV_COMMAND  -> return special data requested by the specific command
-- PROT_SRV_HIST     -> return the chat history
+- PROT_SRV_AUTH         -> acknowledge and confirm the username or potentially if the username already exists
+- PROT_SRV_JOIN_CHAT    -> return special data requested by the specific command
+- PROT_SRV_HIST         -> return the chat history
 
