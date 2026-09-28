@@ -9,15 +9,13 @@ There is a clear client-server distinction in the protocol, where clients must i
 ***Definitions***
 To keep a consistent tone, in the doc, the following definitions are used:
 
-- Actions   = defined by the `Action / Message Type` property and responsible 
+- Actions   = defined by the `Action / Message Type` property and responsible for the different interpretations of the data
 
 - Frame     = the complete wire-level unit transmitted
 - Header    = the fixed-size constant header transmitted in each frame
 - Payload   = the variable-sized data described by the header transmitted in each frame
 
-## Important Metadata / Transmission Properties
-
-<!-- TODO: merge with arch-state -->
+## Header Layout
 
 | Property              | Size                | Description                                                                                                                                                                                                                                         |
 |-----------------------|---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|

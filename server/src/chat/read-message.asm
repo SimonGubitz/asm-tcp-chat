@@ -1,7 +1,11 @@
-; src/message/read.asm
+; src/chat/read-message.asm
 %include "linux64.inc"
 %include "message.inc"
 
+; ../protocol/protocol.asm
+extern _is_protocol
+
+; ../error.asm
 extern _handle_error
 
 
@@ -49,11 +53,6 @@ _read_message:
   or rsi, MSG_FLAG_TOO_LONG
 
 .handle_message:
-
-  ; check if the first 5 byte
-  call _is_protocol
-  cmp rax, 1
-  je .read_protocol_message
 
   lea rax, buf
   mov rdi, buflen

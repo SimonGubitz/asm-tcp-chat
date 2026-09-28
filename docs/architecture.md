@@ -6,11 +6,13 @@
 
 
 ***Using the [Protocol](./protocol.md)***
+
 <!-- TODO: use mermaid graphs here -->
+
 Client <- Protocol -> Server
 
 
-*** Using raw text ->
+***Using raw text***
 Client (nc, other simple TCP Clients) <- text -> Server
 
 

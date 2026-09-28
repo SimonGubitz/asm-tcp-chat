@@ -7,7 +7,16 @@
 %define MAX_CONNS   1
 %define MAX_EVENTS  1
 
-; ../../message/read.asm
+%define MAX_AMNT_CHATS  1
+%define BASE_AMNT_CHATS 1
+
+; ./action.asm
+extern _handle_echo_actions
+
+; ../../chat/chat.asm
+extern _create_chats
+
+; ../../chat/read-message.asm
 extern _read_message
 
 ; ../../connection/socket_ipv6.asm
@@ -20,16 +29,17 @@ section .bss
   amnt_conns    resb 1
 
   listen_sock   resq 1
+  addr_ptr      resb 8
+  addr_len      resb 4
+
   conn_sock     resq 1
+
   epoll_fd      resq 1
 
   epoll_event   resb EVENT_SIZE
   epoll_revent  resb EVENT_SIZE ; INFO: only a one element array, since its an echo server
 
-  conn_addr     resb 16
-
-  addr_ptr      resb 8
-  addr_len      resb 4
+  chats         resq 2
 
 
 section .data
@@ -71,6 +81,13 @@ _echo_runtime:
   ; - incoming connections
   ; - messages sent by already connected clients
 
+  ; TODO:
+  ; create the chats in memory
+  mov rdi, BASE_AMNT_CHATS
+  call _create_chats
+
+  mov [chats], rax
+
 
   ; INFO:
   ; int epoll_create(int size);
@@ -87,7 +104,6 @@ _echo_runtime:
   ; int epoll_ctl(int epfd, int op, int fd, struct epoll_event *_Nullable event);
   ; ==> epoll_ctl(epollfd, EPOLL_CTL_ADD, listen_sock, &ev)
 
-  ; TODO: construct a epoll_event
   lea rdi, epoll_event
   mov rdx, [listen_sock]
   call _construct_epoll_event
@@ -222,21 +238,17 @@ _echo_runtime:
 
 .accept_connection_done:
 
-  ; TODO: test which event type it is
-  ; test eax, EPOLLIN
-  ; jnz .read_msg
-
   mov rdi, [conn_sock]
   call _read_message
 
-  ; if its EOF
   test rsi, MSG_FLAG_EOF
   jne .close_connection
 
   test rsi, MSG_FLAG_DISCONNECT
   jne .close_connection
 
-  mov rdx, [conn_sock]
+  mov rdx, [chats]
+  mov rdi, rax
   call _handle_echo_actions
 
   jmp .event_iterate

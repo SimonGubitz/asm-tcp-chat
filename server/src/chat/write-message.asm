@@ -1,4 +1,4 @@
-; src/message/write.asm
+; src/chat/write-message.asm../protocol/protocol.asm
 %include "custom.inc"     ; enable default abs
 %include "linux64.inc"
 %include "message.inc"
@@ -33,7 +33,7 @@ _write_message:
   test rsi, MSG_FLAG_DISCONNECT
   jne _warn_msg_too_long
 
-_respond:
+.respond:
   ; construct the `iovec`
   lea r9, send_buf
   mov qword [iovec], r9

@@ -1,5 +1,6 @@
 ; src/protocol/protocol.asm
 %include "custom.inc"
+%include "linux64.inc"
 %include "protocol.inc"
 
 section .bss
@@ -12,9 +13,10 @@ section .data
 section .text
   global _is_protocol
   global _get_protocol_version
+  global _read_protocol_action
 
 ;; @brief checks if the message is of the current protocol
-;; @param rdi char* - pointer to the byte array
+;; @param rdi char* - pointer to the frame buffer
 ;; @returns rax bool - whether the first bytes indicate the protocol
 _is_protocol:
 
@@ -27,11 +29,11 @@ _is_protocol:
   jmp .set_protocol_true
 
 .set_protocol_false:
-  mov rax, 0x0
+  mov rax, FALSE
   jmp .return
 
 .set_protocol_true:
-  mov rax, 0x1
+  mov rax, TRUE
 
 .return:
   ret
@@ -49,9 +51,14 @@ _get_protocol_version:
   ret
 
 
-;; @brief
-;; @param
-;; @returns rax -
-_read_:
+;; @brief helper function to read the action
+;; @param rdi void * - pointer to the start of the entire frame
+;; @returns rax - the message type
+MESSAGE_TYPE_OFFSET equ 0x0D
+_read_protocol_action:
+
+  xor rax, rax
+  mov al, byte [rdi + MESSAGE_TYPE_OFFSET]
+
   ret
 
