@@ -17,14 +17,14 @@ To keep a consistent tone, in the doc, the following definitions are used:
 
 ## Header Layout
 
-| Property              | Size                | Description                                                                                                                                                                                                                                         |
-|-----------------------|---------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Magic bytes           |              8 byte | "0x99 0x61 0x73 0x6D 0x63 0x68 0x61 0x74 0x0A" which is 0x99 + the hexadecimal representation of the string "asmchat". Where the 0x99 falls outside of the ascii range and thus disables wrongfully reading the following binary protocol as ascii. |
-| Version               |              4 byte | 8bit major, 8bit minor, 16bit patch                                                                                                                                                                                                                 |
-| Action / Message type |              1 byte | To differentiate between `PROT_MSG_CHAT`, `PROT_MSG_COMMAND`, `PROT_MSG_DISCONNECT` and potential future flags. [reference](../server/src/constants/protocol.inc)                                                                                    |
-|                 Pad 3 |              3 byte | Padding to align the upcoming `Message Length` and `Message` to a 8 byte boundry.                                                                                                                                                                   |
-| Message Length        |              2 byte |                                                                                                                                                                                                                                                     |
-| Message               | 1004 byte (maximum) |                                                                                                                                                                                                                                                     |
+| Property              | Size                | Description                                                                                                                                                                                                                                     |
+|-----------------------|---------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Magic bytes           |              8 byte | "0x99 0x61 0x73 0x6D 0x63 0x68 0x61 0x74" which is 0x99 + the hexadecimal representation of the string "asmchat". Where the 0x99 falls outside of the ascii range and thus disables wrongfully reading the following binary protocol as ascii.  |
+| Version               |              4 byte | 8bit major, 8bit minor, 16bit patch                                                                                                                                                                                                             |
+| Action / Message type |              1 byte | To differentiate between `PROT_MSG_CHAT`, `PROT_MSG_COMMAND`, `PROT_MSG_DISCONNECT` and potential future flags. [reference](../server/src/constants/protocol.inc)                                                                               |
+|                 Pad 3 |              3 byte | Padding to align the upcoming `Message Length` and `Message` to a 8 byte boundry.                                                                                                                                                               |
+| Message Length        |              2 byte |                                                                                                                                                                                                                                                 |
+| Message               | 1004 byte (maximum) |                                                                                                                                                                                                                                                 |
 
 
 ## Transmission Layout
@@ -107,7 +107,9 @@ View the related [benchmarks](./benchmarks.md#byte-order).
 
 </details>
 
+<!-- TODO: WHY IS THIS HERE??  -->
 <details>
+
     <summary>PROT_JOIN_CHAT</summary>
 
     > ~C-Like function~

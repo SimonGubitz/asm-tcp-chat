@@ -39,7 +39,7 @@ section .bss
   epoll_event   resb EVENT_SIZE
   epoll_revent  resb EVENT_SIZE ; INFO: only a one element array, since its an echo server
 
-  chats         resq 2
+  chat          resq 2
 
 
 section .data
@@ -86,7 +86,7 @@ _echo_runtime:
   mov rdi, BASE_AMNT_CHATS
   call _create_chats
 
-  mov [chats], rax
+  mov [chat], rax
 
 
   ; INFO:
@@ -211,7 +211,7 @@ _echo_runtime:
   ; 2. add the socket fd  to the epoll instance
   mov [conn_sock], rax
 
-  ; INFO: 
+  ; INFO:
   ; int epoll_ctl(int epfd, int op, int fd, struct epoll_event *_Nullable event);
   ; ==> epoll_ctl(epollfd, EPOLL_CTL_ADD, listen_sock, &ev)
 
@@ -230,7 +230,7 @@ _echo_runtime:
   syscall
 
   cmp rax, 0
-  je .runtime_loop       ; INFO: jump to event_iterate
+  je .runtime_loop
 
   mov rsi, epoll_ctl_errstr
   mov rdx, epoll_ctl_errstrlen
@@ -244,11 +244,17 @@ _echo_runtime:
   test rsi, MSG_FLAG_EOF
   jne .close_connection
 
+  ; TODO: implement
+  ; test rsi, MSG_FLAG_TOO_LONG
+  ; jne .msg_too_long
+
   test rsi, MSG_FLAG_DISCONNECT
   jne .close_connection
 
-  mov rdx, [chats]
+  mov rsi, rdi
   mov rdi, rax
+  mov rdx, [conn_sock]
+  mov r9, chat
   call _handle_echo_actions
 
   jmp .event_iterate

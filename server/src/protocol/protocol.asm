@@ -17,6 +17,7 @@ section .text
 
 ;; @brief checks if the message is of the current protocol
 ;; @param rdi char* - pointer to the frame buffer
+;; @clobbers rsi, rdi, rcx
 ;; @returns rax bool - whether the first bytes indicate the protocol
 _is_protocol:
 

@@ -13,10 +13,6 @@ extern _handle_error
 section .bss
   buf resb buflen
 
-section .data
-  teststr     db "Client said: ", 0xA, 0x0
-  teststr_len equ $ - teststr
-
 section .text
   global _read_message
 
