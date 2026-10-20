@@ -20,7 +20,7 @@ section .data
   handle_text_str db "Handling text, `opt-out`.", 0xA, 0x0
   handle_text_str_len equ $ - handle_text_str
 
-  unknown_errstr db "Unknown or unsupported action for the echo runtime declared in the `action` field of the protocol header.", 0x0
+  unknown_errstr db "Unknown or unsupported action for the echo runtime declared in the `action` field of the protocol header.", 0xA, 0x0
   unknown_errstr_len equ $ - unknown_errstr
 
 section .text

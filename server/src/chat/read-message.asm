@@ -31,6 +31,15 @@ _read_message:
   mov rdx, buflen
   syscall
 
+  cmp byte [buf + rax - 1], LF
+  jne .skip_trim
+
+.trim:
+
+  sub rax, 1
+
+.skip_trim:
+
   xor rsi, rsi    ; set return to 0
 
   ; check if its an EOF
@@ -50,8 +59,8 @@ _read_message:
 
 .handle_message:
 
+  mov rdi, rax
   lea rax, buf
-  mov rdi, buflen
   ; rsi is set already
 
   ret

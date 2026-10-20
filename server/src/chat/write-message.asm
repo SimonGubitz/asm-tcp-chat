@@ -9,11 +9,14 @@ struc iovec
 endstruc
 
 section .bss
-  iovec_bufs resb 2 * iovec_size
+  iovec_bufs resb 3 * iovec_size
 
 section .data
   send_buf          db "------> You said: ", 0x0
   send_buflen       equ $ - send_buf
+
+  newline           db LF
+  newline_len       equ $ - newline
 
 section .text
   global _write_message
@@ -26,20 +29,24 @@ section .text
 ;; @param r9     int - connected sockfd
 _write_message:
 
-  ; construct the `iovec`
+  ; construct the io vector
   lea r10, send_buf
   mov qword [iovec_bufs + iovec.iov_base], r10
   mov qword [iovec_bufs + iovec.iov_len], send_buflen
 
-  mov qword [iovec_bufs + iovec_size + iovec.iov_base], rdi
-  mov qword [iovec_bufs + iovec_size + iovec.iov_len], rsi
+  mov qword [iovec_bufs + 1*iovec_size + iovec.iov_base], rdi
+  mov qword [iovec_bufs + 1*iovec_size + iovec.iov_len], rsi
+
+  lea r10, newline
+  mov qword [iovec_bufs + 2*iovec_size + iovec.iov_base], r10
+  mov qword [iovec_bufs + 2*iovec_size + iovec.iov_len], newline_len
 
   ; INFO:
   ; ssize_t writev(int fd, const struct iovec *iov, int iovcnt);
   mov rax, SYS_WRITEV
   mov rdi, r9
   lea rsi, iovec_bufs
-  mov rdx, 0x2        ; 2 buffers
+  mov rdx, 0x3        ; 3 buffers
   syscall
 
   jmp _return

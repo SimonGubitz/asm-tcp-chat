@@ -47,7 +47,6 @@ run-test: clean build
 
 run-test-server:
 	gcc src/test-server.c -o bin/test-server && ./bin/test-server
-	
 
 clean:
 	$(RM) -r $(OUTPUT_DIR)/**
