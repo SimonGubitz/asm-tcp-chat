@@ -40,7 +40,7 @@ _create_chats:
 
   jmp .create_chats_done
 
-; TODO:remove this and replace it with actual malloc
+; TODO: remove this and replace it with actual malloc
 .too_many_chats:
 
   mov rsi, chats_errstr

@@ -1,7 +1,15 @@
 ; src/connection/socket.asm
 %include "linux64.inc"
+%include "signals.inc"
 %include "socket.inc"
 %include "custom.inc"
+
+; ../error.asm
+extern _handle_error
+
+section .data
+  invalid_signalstr     db "Invalid file descriptor returned by `signalfd`.", 0x0
+  invalid_signalstr_len equ $ - invalid_signalstr
 
 section .text
 	global _fill_sockaddr_in6 ; for C testing access
@@ -11,15 +19,15 @@ section .text
   global _socket_listen
   global _socket_accept
   global _socket_close
+  global _add_socket_sigint_handler
 
 ;; @brief creates a unix/local socket
 ;; @clobbers rdi, rsi, rdx
 ;; @returns rax int - sockfd
 _create_socket:
-  ; https://man7.org/linux/man-pages/man7/unix.7.html
 
-  ; call the socket function
-  ; socket(AF_INET6, SOCK_STREAM, 0);
+  ; INFO:
+  ; int socket(int domain, int type, int protocol);
   mov rax, SYS_SOCKET
   mov rdi, AF_INET6       ; IPv6
   mov rsi, SOCK_STREAM    ; TCP
@@ -46,6 +54,7 @@ _socket_bind:
   mov rsi, rdx
   call _fill_sockaddr_in6
 
+  ; INFO:
   ; int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
   mov rax, SYS_BIND
   pop rdi ; sockfd

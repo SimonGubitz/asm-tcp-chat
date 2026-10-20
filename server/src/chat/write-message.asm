@@ -9,11 +9,14 @@ struc iovec
 endstruc
 
 section .bss
-  iovec_bufs resb 2 * iovec_size
+  iovec_bufs resb 3 * iovec_size
 
 section .data
   send_buf          db "------> You said: ", 0x0
   send_buflen       equ $ - send_buf
+
+  newline           db LF
+  newline_len       equ $ - newline
 
 section .text
   global _write_message

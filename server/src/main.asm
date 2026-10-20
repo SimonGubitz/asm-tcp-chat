@@ -21,25 +21,25 @@ section .bss
 
 section .data
 
-  create_errstr db "Failed to create socket.", 0xA, 0x0
+  create_errstr db "Failed to create socket.", LF, 0x0
   create_errstrlen equ $ - create_errstr
 
-  conn_errstr db "Failed to connect to socket.", 0xA, 0x0
+  conn_errstr db "Failed to connect to socket.", LF, 0x0
   conn_errstrlen equ $ - conn_errstr
 
-  bind_errstr db "Failed to bind to socket.", 0xA, 0x0
+  bind_errstr db "Failed to bind to socket.", LF, 0x0
   bind_errstrlen equ $ - bind_errstr
 
-  listen_errstr db "Failed to listen on socket.", 0xA
+  listen_errstr db "Failed to listen on socket.", LF
   listen_errstrlen equ $ - listen_errstr
 
-  accept_errstr db "Failed to accept incoming connection.", 0xA, 0x0
+  accept_errstr db "Failed to accept incoming connection.", LF, 0x0
   accept_errstrlen equ $ - accept_errstr
 
-  runtime_errstr db "Unknown error during runtime.", 0xA, 0x0
+  runtime_errstr db "Unknown error during runtime.", LF, 0x0
   runtime_errstrlen equ $ - runtime_errstr
 
-  ; port dw %env("PORT", 1234)
+  ; port dw %env("PORT", 1735)
 
 section .text
   global _start
